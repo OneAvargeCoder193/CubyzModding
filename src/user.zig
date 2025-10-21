@@ -8,9 +8,9 @@ pub const User = struct {
 	id: u32,
 	
 	pub fn sendMessage(self: User, comptime fmt: []const u8, args: anytype) void {
-		const msg = std.fmt.allocPrint(main.allocator, fmt, args) catch unreachable;
-		defer main.allocator.free(msg);
-		sendMessageUnformatted(self.id, msg.ptr, msg.len);
+		const msg = std.fmt.allocPrint(cubyz.allocator, fmt, args) catch unreachable;
+		defer cubyz.allocator.free(msg);
+		sendMessageImpl(self.id, msg.ptr, msg.len);
 	}
 
 	pub fn addHealth(self: User, amount: f32, damageType: game.DamageType) void {
@@ -19,4 +19,4 @@ pub const User = struct {
 };
 
 extern fn addHealthImpl(user: u32, amount: f32, damageType: game.DamageType) void;
-extern fn sendMessageUnformatted(user: u32, message: [*]u8, messageLen: usize) void;
+extern fn sendMessageImpl(user: u32, message: [*]u8, messageLen: usize) void;

@@ -18,7 +18,7 @@ pub fn registerCommand(
 	description: []const u8,
 	usage: []const u8,
 ) void {
-	commandTable.put(main.allocator, name, exec) catch unreachable;
+	commandTable.put(cubyz.allocator, name, exec) catch unreachable;
 	registerCommandImpl(@constCast(name.ptr), name.len, @constCast(description.ptr), description.len, @constCast(usage.ptr), usage.len);
 }
 
@@ -29,5 +29,5 @@ export fn executeCommand(namePtr: [*]u8, nameLen: usize, argPtr: [*]u8, argLen: 
 }
 
 pub fn deinit() void {
-	commandTable.deinit(main.allocator);
+	commandTable.deinit(cubyz.allocator);
 }
