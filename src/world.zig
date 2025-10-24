@@ -18,5 +18,10 @@ pub fn setBlock(block: Block, pos: Vec3i) void {
 	setBlockImpl(block, pos[0], pos[1], pos[2]);
 }
 
+pub fn getBlock(pos: Vec3i) Block {
+	return getBlockImpl(pos[0], pos[1], pos[2]);
+}
+
 extern fn parseBlockImpl(id: [*]u8, idLen: u32) Block;
 extern fn setBlockImpl(block: Block, x: i32, y: i32, z: i32) void;
+extern fn getBlockImpl(x: i32, y: i32, z: i32) Block;

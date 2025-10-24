@@ -7,10 +7,12 @@ pub const utils = cubyz.utils;
 pub const command = cubyz.command;
 pub const vec = cubyz.vec;
 pub const world = cubyz.world;
+pub const blueprint = cubyz.blueprint;
 const Vec3d = vec.Vec3d;
 const Vec3i = vec.Vec3i;
 const User = user.User;
 const Block = world.Block;
+const Blueprint = blueprint.Blueprint;
 
 fn executeCat(args: []u8, source: User) void {
 	source.sendMessage("{s}", .{args});
