@@ -10,7 +10,7 @@ pub const Block = packed struct(u32) {
 	pub const air = Block{.typ = 0, .data = 0};
 
 	pub fn parse(id: []const u8) Block {
-		return parseBlockImpl(@constCast(id.ptr), @intCast(id.len));
+		return parseBlockImpl(id.ptr, @intCast(id.len));
 	}
 };
 
@@ -22,6 +22,6 @@ pub fn getBlock(pos: Vec3i) Block {
 	return getBlockImpl(pos[0], pos[1], pos[2]);
 }
 
-extern fn parseBlockImpl(id: [*]u8, idLen: u32) Block;
+extern fn parseBlockImpl(id: [*]const u8, idLen: u32) Block;
 extern fn setBlockImpl(block: Block, x: i32, y: i32, z: i32) void;
 extern fn getBlockImpl(x: i32, y: i32, z: i32) Block;

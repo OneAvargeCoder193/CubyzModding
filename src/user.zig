@@ -61,7 +61,7 @@ pub const User = packed struct(u32) {
 };
 
 extern fn addHealthImpl(user: User, amount: f32, damageType: game.DamageType) void;
-extern fn sendMessageImpl(user: User, message: [*]u8, messageLen: u32) void;
+extern fn sendMessageImpl(user: User, message: [*]const u8, messageLen: u32) void;
 extern fn getSelectedPosition1Impl(user: User, x: *i32, y: *i32, z: *i32) bool;
 extern fn getSelectedPosition2Impl(user: User, x: *i32, y: *i32, z: *i32) bool;
 extern fn setSelectedPosition1Impl(user: User, exists: bool, x: i32, y: i32, z: i32) void;

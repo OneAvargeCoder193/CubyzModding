@@ -6,12 +6,6 @@ const user = main.user;
 
 var commandTable: std.StringHashMapUnmanaged(*const fn(args: []u8, source: user.User) void) = .empty;
 
-extern fn registerCommandImpl(
-	name: [*]u8, nameLen: u32,
-	description: [*]u8, descriptionLen: u32,
-	usage: [*]u8, usageLen: u32
-) void;
-
 pub fn registerCommand(
 	exec: *const fn(args: []u8, source: user.User) void,
 	name: []const u8,
@@ -19,7 +13,7 @@ pub fn registerCommand(
 	usage: []const u8,
 ) void {
 	commandTable.put(cubyz.allocator, name, exec) catch unreachable;
-	registerCommandImpl(@constCast(name.ptr), @intCast(name.len), @constCast(description.ptr), @intCast(description.len), @constCast(usage.ptr), @intCast(usage.len));
+	registerCommandImpl(name.ptr, @intCast(name.len), description.ptr, @intCast(description.len), usage.ptr, @intCast(usage.len));
 }
 
 export fn executeCommand(namePtr: [*]u8, nameLen: u32, argPtr: [*]u8, argLen: u32, source: u32) void {
@@ -31,3 +25,9 @@ export fn executeCommand(namePtr: [*]u8, nameLen: u32, argPtr: [*]u8, argLen: u3
 pub fn deinit() void {
 	commandTable.deinit(cubyz.allocator);
 }
+
+extern fn registerCommandImpl(
+	name: [*]const u8, nameLen: u32,
+	description: [*]const u8, descriptionLen: u32,
+	usage: [*]const u8, usageLen: u32
+) void;
