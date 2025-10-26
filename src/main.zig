@@ -1,6 +1,6 @@
 const std = @import("std");
 
-pub const cubyz = @import("cubyz.zig");
+pub const cubyz = @import("cubyz");
 pub const user = cubyz.user;
 pub const game = cubyz.game;
 pub const utils = cubyz.utils;

@@ -8,13 +8,22 @@ pub fn build(b: *std.Build) void {
 		.cpu_features_add = std.Target.wasm.cpu.bleeding_edge.features,
 	});
     const optimize = b.standardOptimizeOption(.{});
-	
+
+    const cubyz = b.addModule("cubyz", .{
+		.root_source_file = b.path("cubyz/root.zig"),
+		.target = target,
+		.optimize = optimize,
+    });
+
     const lib = b.addExecutable(.{
         .name = "Modding",
         .root_module = b.createModule(.{
             .root_source_file = b.path("src/main.zig"),
             .target = target,
-            .optimize = optimize
+            .optimize = optimize,
+            .imports = &.{
+                .{ .name = "cubyz", .module = cubyz },
+            },
         }),
     });
 	lib.rdynamic = true;
