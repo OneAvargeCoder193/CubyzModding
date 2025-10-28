@@ -1,0 +1,1 @@
+const cubyz = @import("cubyz.zig");

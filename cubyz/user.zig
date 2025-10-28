@@ -1,10 +1,8 @@
 const std = @import("std");
 
-const main = @import("root");
-const cubyz = main.cubyz;
+const cubyz = @import("cubyz.zig");
 const game = cubyz.game;
 const vec = cubyz.vec;
-const Blueprint = cubyz.blueprint.Blueprint;
 const Vec3i = vec.Vec3i;
 const Vec3d = vec.Vec3d;
 

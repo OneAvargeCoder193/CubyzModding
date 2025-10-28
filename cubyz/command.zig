@@ -1,8 +1,7 @@
 const std = @import("std");
 
-const main = @import("root");
-const cubyz = main.cubyz;
-const user = main.user;
+const cubyz = @import("cubyz.zig");
+const user = cubyz.user;
 
 fn typeId(comptime T: type) comptime_int {
     return @intFromError(@field(anyerror, @typeName(T)));

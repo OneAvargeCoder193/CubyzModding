@@ -1,9 +1,8 @@
 const std = @import("std");
 
-const main = @import("root");
-
 pub const command = @import("command.zig");
 pub const game = @import("game.zig");
+pub const gui = @import("gui.zig");
 pub const user = @import("user.zig");
 pub const utils = @import("utils.zig");
 pub const vec = @import("vec.zig");

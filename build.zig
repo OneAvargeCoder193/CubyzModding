@@ -10,7 +10,7 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     const cubyz = b.addModule("cubyz", .{
-		.root_source_file = b.path("cubyz/root.zig"),
+		.root_source_file = b.path("cubyz/cubyz.zig"),
 		.target = target,
 		.optimize = optimize,
     });
