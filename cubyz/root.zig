@@ -2,9 +2,9 @@ const std = @import("std");
 
 const main = @import("root");
 
-pub const user = @import("user.zig");
-pub const game = @import("game.zig");
 pub const command = @import("command.zig");
+pub const game = @import("game.zig");
+pub const user = @import("user.zig");
 pub const utils = @import("utils.zig");
 pub const vec = @import("vec.zig");
 pub const world = @import("world.zig");
@@ -24,5 +24,5 @@ pub export fn init() void {
 }
 
 pub export fn deinit() void {
-	command.deinit();
+	
 }

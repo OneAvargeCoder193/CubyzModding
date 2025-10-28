@@ -4,29 +4,28 @@ const main = @import("root");
 const cubyz = main.cubyz;
 const user = main.user;
 
-var commandTable: std.StringHashMapUnmanaged(*const fn(args: []u8, source: user.User) void) = .empty;
+fn typeId(comptime T: type) comptime_int {
+    return @intFromError(@field(anyerror, @typeName(T)));
+}
 
 pub fn registerCommand(
-	exec: *const fn(args: []u8, source: user.User) void,
-	name: []const u8,
-	description: []const u8,
-	usage: []const u8,
+	comptime exec: fn(args: []u8, source: user.User) void,
+	comptime name: []const u8,
+	comptime description: []const u8,
+	comptime usage: []const u8,
 ) void {
-	commandTable.put(cubyz.allocator, name, exec) catch unreachable;
-	registerCommandImpl(name.ptr, @intCast(name.len), description.ptr, @intCast(description.len), usage.ptr, @intCast(usage.len));
-}
-
-export fn executeCommand(namePtr: [*]u8, nameLen: u32, argPtr: [*]u8, argLen: u32, source: u32) void {
-	const name = namePtr[0..nameLen];
-	const args = argPtr[0..argLen];
-	commandTable.get(name).?(args, .{.id = source});
-}
-
-pub fn deinit() void {
-	commandTable.deinit(cubyz.allocator);
+	const id = typeId(opaque{const _name = name;});
+	const funcName = std.fmt.comptimePrint("command{d}", .{id});
+	@export(&struct {
+		fn execute(argPtr: [*]u8, argLen: u32, source: u32) callconv(.{ .wasm_mvp = .{} }) void {
+			exec(argPtr[0..argLen], .{.id = source});
+		}
+	}.execute, .{.name = funcName});
+	registerCommandImpl(funcName.ptr, @intCast(funcName.len), name.ptr, @intCast(name.len), description.ptr, @intCast(description.len), usage.ptr, @intCast(usage.len));
 }
 
 extern fn registerCommandImpl(
+	funcName: [*]const u8, funcNameLen: u32,
 	name: [*]const u8, nameLen: u32,
 	description: [*]const u8, descriptionLen: u32,
 	usage: [*]const u8, usageLen: u32
