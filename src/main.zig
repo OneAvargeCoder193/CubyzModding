@@ -1,6 +1,7 @@
 const std = @import("std");
 
 pub const cubyz = @import("cubyz");
+pub const assets = cubyz.assets;
 pub const user = cubyz.user;
 pub const game = cubyz.game;
 pub const gui = cubyz.gui;
@@ -12,6 +13,15 @@ const Vec3d = vec.Vec3d;
 const Vec3i = vec.Vec3i;
 const User = user.User;
 const Block = world.Block;
+
+const assetList = @import("build_options").assets;
+
+pub export fn loadAssets() void {
+	inline for(assetList) |asset| {
+		const content = @embedFile("assets/" ++ asset);
+		assets.registerAsset(asset, content);
+	}
+}
 
 pub export fn registerCommands() void {
 	command.registerCommand(@import("commands/calc.zig").execute, "calc", "Calculate equation", "/calc <equation>");

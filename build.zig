@@ -30,5 +30,23 @@ pub fn build(b: *std.Build) void {
 	lib.rdynamic = true;
 	lib.entry = .disabled;
 
+	const options = b.addOptions();
+	options.addOption([]const []const u8, "assets", loadAssets(b));
+	lib.root_module.addOptions("build_options", options);
+
     b.installArtifact(lib);
+}
+
+fn loadAssets(b: *std.Build) []const []const u8 {
+	var list: std.ArrayList([]const u8) = .{};
+	var folder = std.fs.cwd().openDir("src/assets", .{.iterate = true}) catch return &.{};
+	defer folder.close();
+	var walker = folder.walk(b.allocator) catch unreachable;
+	while(walker.next() catch unreachable) |entry| {
+		if(entry.kind != .file) continue;
+		const path = b.allocator.dupe(u8, entry.path) catch unreachable;
+		std.mem.replaceScalar(u8, path, '\\', '/');
+		list.append(b.allocator, path) catch unreachable;
+	}
+	return list.toOwnedSlice(b.allocator) catch unreachable;
 }
