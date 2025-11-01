@@ -9,12 +9,13 @@ const Button = @This();
 
 index: u32,
 
-pub fn initText(pos: Vec2f, width: f32, text: []const u8, callback: fn() void) Button {
+pub fn initText(pos: Vec2f, width: f32, text: []const u8, callback: ?fn() void) Button {
 	const callbackName = cubyz.callback.registerCallback(callback, struct{
-		fn wrap(func: fn() void) fn(u32) callconv(.{ .wasm_mvp = .{} }) void {
+		fn wrap(func: ?fn() void) fn(u32) callconv(.{ .wasm_mvp = .{} }) void {
 			return struct{
 				fn function(_: u32) callconv(.{ .wasm_mvp = .{} }) void {
-					return func();
+					if(func == null) return;
+					func.?();
 				}
 			}.function;
 		}

@@ -30,6 +30,7 @@ pub const GuiComponent = union(GuiComponentEnum) {
 	pub const Button = @import("components/Button.zig");
 	pub const CheckBox = @import("components/CheckBox.zig");
 	pub const Label = @import("components/Label.zig");
+	pub const TextInput = @import("components/TextInput.zig");
 	pub const VerticalList = @import("components/VerticalList.zig");
 
 	button: Button,
@@ -41,7 +42,7 @@ pub const GuiComponent = union(GuiComponentEnum) {
 	scrollBar: Label,
 	continuousSlider: Label,
 	discreteSlider: Label,
-	textInput: Label,
+	textInput: TextInput,
 	verticalList: VerticalList,
 
 	pub fn deinit(self: GuiComponent) void {
