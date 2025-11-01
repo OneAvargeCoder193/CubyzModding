@@ -1,4 +1,5 @@
 const cubyz = @import("cubyz");
+const chat = cubyz.chat;
 const vec = cubyz.vec;
 const Vec2f = vec.Vec2f;
 const gui = cubyz.gui;
@@ -19,10 +20,14 @@ pub const id = "testgui";
 
 pub fn open() void {
 	const list = VerticalList.init(.{padding, 16 + padding}, 300, 16);
-	list.add(Button.initText(.{0, 0}, 128, "Test Wasm Button"));
+	list.add(Button.initText(.{0, 0}, 128, "Test Wasm Button", sendMessage));
 	list.add(Label.init(.{0, 0}, 128, "Test Wasm Label", .center));
 	list.finish(.center);
 	gui.setRootComponent(id, list.toComponent(), padding);
+}
+
+fn sendMessage() void {
+	chat.showMessage("Test RAHHHHH", .{});
 }
 
 pub fn close() void {

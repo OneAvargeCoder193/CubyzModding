@@ -1,5 +1,7 @@
 const std = @import("std");
 
+pub const callback = @import("callback.zig");
+pub const chat = @import("chat.zig");
 pub const command = @import("command.zig");
 pub const game = @import("game.zig");
 pub const gui = @import("gui.zig");
