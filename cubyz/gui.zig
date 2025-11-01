@@ -6,6 +6,12 @@ const Vec2f = vec.Vec2f;
 const utils = cubyz.utils;
 const BinaryWriter = utils.BinaryWriter;
 
+pub const Alignment = enum(u2) {
+	left = 0,
+	center = 1,
+	right = 2,
+};
+
 pub const GuiComponentEnum = enum(u8) {
 	button = 0,
 	checkBox = 1,
@@ -21,9 +27,11 @@ pub const GuiComponentEnum = enum(u8) {
 };
 
 pub const GuiComponent = union(GuiComponentEnum) {
+	pub const Button = @import("components/Button.zig");
 	pub const Label = @import("components/Label.zig");
+	pub const VerticalList = @import("components/VerticalList.zig");
 
-	button: Label,
+	button: Button,
 	checkBox: Label,
 	horizontalList: Label,
 	icon: Label,
@@ -33,16 +41,10 @@ pub const GuiComponent = union(GuiComponentEnum) {
 	continuousSlider: Label,
 	discreteSlider: Label,
 	textInput: Label,
-	verticalList: Label,
+	verticalList: VerticalList,
 
 	pub fn deinit(self: GuiComponent) void {
-		switch(self) {
-			inline else => |impl| {
-				if(@hasDecl(@TypeOf(impl), "deinit")) {
-					impl.deinit();
-				}
-			},
-		}
+		guiComponentDeinitImpl(self.index());
 	}
 
 	pub fn index(self: GuiComponent) u32 {
@@ -208,3 +210,5 @@ extern fn getComponentTypeImpl(index: u32) u8;
 
 extern fn guiComponentPosImpl(index: u32, x: *f32, y: *f32) void;
 extern fn guiComponentSizeImpl(index: u32, width: *f32, height: *f32) void;
+
+extern fn guiComponentDeinitImpl(index: u32) void;

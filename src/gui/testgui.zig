@@ -3,6 +3,8 @@ const vec = cubyz.vec;
 const Vec2f = vec.Vec2f;
 const gui = cubyz.gui;
 const GuiComponent = gui.GuiComponent;
+const VerticalList = GuiComponent.VerticalList;
+const Button = GuiComponent.Button;
 const Label = GuiComponent.Label;
 
 const padding: f32 = 8;
@@ -16,8 +18,11 @@ pub var window = gui.WindowConfig{
 pub const id = "testgui";
 
 pub fn open() void {
-	const label = Label.init(.{padding, 16 + padding}, 300, "LABEL", .left);
-	gui.setRootComponent(id, label.toComponent(), padding);
+	const list = VerticalList.init(.{padding, 16 + padding}, 300, 16);
+	list.add(Button.initText(.{0, 0}, 128, "Test Wasm Button"));
+	list.add(Label.init(.{0, 0}, 128, "Test Wasm Label", .center));
+	list.finish(.center);
+	gui.setRootComponent(id, list.toComponent(), padding);
 }
 
 pub fn close() void {
