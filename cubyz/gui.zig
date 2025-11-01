@@ -1,1 +1,210 @@
-const cubyz = @import("cubyz.zig");
+const std = @import("std");
+
+const cubyz = @import("cubyz");
+const vec = cubyz.vec;
+const Vec2f = vec.Vec2f;
+const utils = cubyz.utils;
+const BinaryWriter = utils.BinaryWriter;
+
+pub const GuiComponentEnum = enum(u8) {
+	button = 0,
+	checkBox = 1,
+	horizontalList = 2,
+	icon = 3,
+	itemSlot = 4,
+	label = 5,
+	scrollBar = 6,
+	continuousSlider = 7,
+	discreteSlider = 8,
+	textInput = 9,
+	verticalList = 10,
+};
+
+pub const GuiComponent = union(GuiComponentEnum) {
+	pub const Label = @import("components/Label.zig");
+
+	button: Label,
+	checkBox: Label,
+	horizontalList: Label,
+	icon: Label,
+	itemSlot: Label,
+	label: Label,
+	scrollBar: Label,
+	continuousSlider: Label,
+	discreteSlider: Label,
+	textInput: Label,
+	verticalList: Label,
+
+	pub fn deinit(self: GuiComponent) void {
+		switch(self) {
+			inline else => |impl| {
+				if(@hasDecl(@TypeOf(impl), "deinit")) {
+					impl.deinit();
+				}
+			},
+		}
+	}
+
+	pub fn index(self: GuiComponent) u32 {
+		switch(self) {
+			inline else => |impl| {
+				return impl.index;
+			},
+		}
+	}
+
+	pub fn pos(self: GuiComponent) Vec2f {
+		var posOut: Vec2f = undefined;
+		guiComponentPosImpl(self.index(), &posOut[0], &posOut[1]);
+		return posOut;
+	}
+
+	pub fn size(self: GuiComponent) Vec2f {
+		var sizeOut: Vec2f = undefined;
+		guiComponentSizeImpl(self.index(), &sizeOut[0], &sizeOut[1]);
+		return sizeOut;
+	}
+};
+
+pub const AttachmentPoint = enum(u2) {
+	lower = 0,
+	middle = 1,
+	upper = 2,
+};
+
+const RelativePositionEnum = enum(u2) {
+	ratio = 0,
+	attachedToFrame = 1,
+	relativeToWindow = 2,
+	attachedToWindow = 3,
+};
+
+pub const RelativePosition = union(RelativePositionEnum) {
+	ratio: f32,
+	attachedToFrame: struct {
+		selfAttachmentPoint: AttachmentPoint,
+		otherAttachmentPoint: AttachmentPoint,
+	},
+	relativeToWindow: struct {
+		otherId: []const u8,
+		ratio: f32,
+	},
+	attachedToWindow: struct {
+		otherId: []const u8,
+		selfAttachmentPoint: AttachmentPoint,
+		otherAttachmentPoint: AttachmentPoint,
+	},
+
+	pub fn serialize(self: RelativePosition) []u8 {
+		var writer: BinaryWriter = .{};
+		writer.writeEnum(RelativePositionEnum, std.meta.activeTag(self));
+		switch(self) {
+			.ratio => |ratio| {
+				writer.writeFloat(f32, ratio);
+			},
+			.attachedToFrame => |attachedToFrame| {
+				writer.writeEnum(AttachmentPoint, attachedToFrame.selfAttachmentPoint);
+				writer.writeEnum(AttachmentPoint, attachedToFrame.otherAttachmentPoint);
+			},
+			.relativeToWindow => |relativeToWindow| {
+				writer.writeFloat(f32, relativeToWindow.ratio);
+				writer.writeSlice(relativeToWindow.otherId);
+			},
+			.attachedToWindow => |attachedToWindow| {
+				writer.writeEnum(AttachmentPoint, attachedToWindow.selfAttachmentPoint);
+				writer.writeEnum(AttachmentPoint, attachedToWindow.otherAttachmentPoint);
+				writer.writeSlice(attachedToWindow.otherId);
+			},
+		}
+		return writer.data.items;
+	}
+};
+
+pub const WindowConfig = struct {
+	contentSize: Vec2f,
+	scale: f32 = 1,
+	spacing: f32 = 0,
+	relativePosition: [2]RelativePosition = .{.{.ratio = 0.5}, .{.ratio = 0.5}},
+	showTitleBar: bool = true,
+	hasBackground: bool = true,
+	hideIfMouseIsGrabbed: bool = true,
+	closeIfMouseIsGrabbed: bool = false,
+	closable: bool = true,
+	isHud: bool = false,
+};
+
+fn registerWindowConfig(func: anytype, comptime window: *WindowConfig, comptime name: []const u8, comptime id: []const u8) []const u8 {
+	const configName = std.fmt.comptimePrint("windowConfig_{s}_{s}", .{name, id});
+	@export(&struct {
+		fn execute() callconv(.{ .wasm_mvp = .{} }) @typeInfo(@TypeOf(func)).@"fn".return_type.? {
+			return func(@field(window, name));
+		}
+	}.execute, .{.name = configName});
+	return configName;
+}
+
+pub fn registerWindow(
+	window: WindowConfig,
+	comptime onOpen: fn() void,
+	comptime onClose: fn() void,
+	comptime name: []const u8,
+) void {
+	const openName = std.fmt.comptimePrint("openWindow_{s}", .{name});
+	@export(&struct {
+		fn execute() callconv(.{ .wasm_mvp = .{} }) void {
+			return onOpen();
+		}
+	}.execute, .{.name = openName});
+	const closeName = std.fmt.comptimePrint("closeWindow_{s}", .{name});
+	@export(&struct {
+		fn execute() callconv(.{ .wasm_mvp = .{} }) void {
+			onClose();
+		}
+	}.execute, .{.name = closeName});
+	const relativePosX = window.relativePosition[0].serialize();
+	const relativePosY = window.relativePosition[1].serialize();
+	defer cubyz.allocator.free(relativePosX);
+	defer cubyz.allocator.free(relativePosY);
+	registerWindowImpl(openName.ptr, @intCast(openName.len), closeName.ptr, @intCast(closeName.len), name.ptr, @intCast(name.len),
+		window.contentSize[0], window.contentSize[1],
+		window.scale, window.spacing,
+		relativePosX.ptr, @intCast(relativePosX.len),
+		relativePosY.ptr, @intCast(relativePosY.len),
+		window.showTitleBar, window.hasBackground,
+		window.hideIfMouseIsGrabbed, window.closeIfMouseIsGrabbed,
+		window.closable, window.isHud,
+	);
+}
+
+pub fn setRootComponent(id: []const u8, component: GuiComponent, padding: f32) void {
+	setRootComponentImpl(id.ptr, @intCast(id.len), component.index(), padding);
+}
+
+pub fn getRootComponent(id: []const u8) ?GuiComponent {
+	var exists: bool = undefined;
+	const index = getRootComponentImpl(id.ptr, @intCast(id.len), &exists);
+	if(!exists) return null;
+	const typ = getComponentTypeImpl(index);
+	return switch(std.meta.stringToEnum(GuiComponentEnum, std.meta.fieldNames(GuiComponent)[typ]).?) {
+		inline else => |tag| @unionInit(GuiComponent, @tagName(tag), .{.index = index}),
+	};
+}
+
+extern fn registerWindowImpl(
+	openName: [*]const u8, openNameLen: u32,
+	closeName: [*]const u8, closeNameLen: u32,
+	name: [*]const u8, nameLen: u32,
+	contentWidth: f32, contentHeight: f32,
+	scale: f32, spacing: f32,
+	relativePositionX: [*]const u8, relativePositionXLen: u32,
+	relativePositionY: [*]const u8, relativePositionYLen: u32,
+	showTitleBar: bool, hasBackground: bool,
+	hideIfMouseIsGrabbed: bool, closeIfMouseIsGrabbed: bool,
+	closable: bool, isHud: bool,
+) void;
+extern fn setRootComponentImpl(name: [*]const u8, nameLen: u32, component: u32, padding: f32) void;
+extern fn getRootComponentImpl(name: [*]const u8, nameLen: u32, exists: *bool) u32;
+extern fn getComponentTypeImpl(index: u32) u8;
+
+extern fn guiComponentPosImpl(index: u32, x: *f32, y: *f32) void;
+extern fn guiComponentSizeImpl(index: u32, width: *f32, height: *f32) void;

@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const cubyz = @import("cubyz.zig");
+const cubyz = @import("cubyz");
 const game = cubyz.game;
 const vec = cubyz.vec;
 const Vec3i = vec.Vec3i;

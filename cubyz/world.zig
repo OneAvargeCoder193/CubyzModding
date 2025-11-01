@@ -1,4 +1,4 @@
-const cubyz = @import("cubyz.zig");
+const cubyz = @import("cubyz");
 const vec = cubyz.vec;
 const Vec3i = vec.Vec3i;
 

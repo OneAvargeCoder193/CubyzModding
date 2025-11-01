@@ -14,6 +14,7 @@ pub fn build(b: *std.Build) void {
 		.target = target,
 		.optimize = optimize,
     });
+	cubyz.addImport("cubyz", cubyz);
 
     const lib = b.addExecutable(.{
         .name = "Modding",

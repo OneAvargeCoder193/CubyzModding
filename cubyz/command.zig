@@ -1,11 +1,7 @@
 const std = @import("std");
 
-const cubyz = @import("cubyz.zig");
+const cubyz = @import("cubyz");
 const user = cubyz.user;
-
-fn typeId(comptime T: type) comptime_int {
-    return @intFromError(@field(anyerror, @typeName(T)));
-}
 
 pub fn registerCommand(
 	comptime exec: fn(args: []u8, source: user.User) void,
@@ -13,8 +9,7 @@ pub fn registerCommand(
 	comptime description: []const u8,
 	comptime usage: []const u8,
 ) void {
-	const id = typeId(opaque{const _name = name;});
-	const funcName = std.fmt.comptimePrint("command{d}", .{id});
+	const funcName = std.fmt.comptimePrint("command_{s}", .{name});
 	@export(&struct {
 		fn execute(argPtr: [*]u8, argLen: u32, source: u32) callconv(.{ .wasm_mvp = .{} }) void {
 			exec(argPtr[0..argLen], .{.id = source});
