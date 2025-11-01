@@ -7,6 +7,7 @@ const GuiComponent = gui.GuiComponent;
 const VerticalList = GuiComponent.VerticalList;
 const Button = GuiComponent.Button;
 const Label = GuiComponent.Label;
+const CheckBox = GuiComponent.CheckBox;
 
 const padding: f32 = 8;
 
@@ -22,12 +23,17 @@ pub fn open() void {
 	const list = VerticalList.init(.{padding, 16 + padding}, 300, 16);
 	list.add(Button.initText(.{0, 0}, 128, "Test Wasm Button", sendMessage));
 	list.add(Label.init(.{0, 0}, 128, "Test Wasm Label", .center));
+	list.add(CheckBox.init(.{0, 0}, 128, "Test Wasm Checkbox", false, checkBoxChanged));
 	list.finish(.center);
 	gui.setRootComponent(id, list.toComponent(), padding);
 }
 
 fn sendMessage() void {
-	chat.showMessage("Test RAHHHHH", .{});
+	chat.showMessage("Button clicked", .{});
+}
+
+fn checkBoxChanged(checked: bool) void {
+	chat.showMessage("Checkbox changed to: {}", .{checked});
 }
 
 pub fn close() void {

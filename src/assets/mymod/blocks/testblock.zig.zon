@@ -9,4 +9,5 @@
 	.rotation = "cubyz:stairs",
 	.model = "cubyz:cube",
 	.texture = "cubyz:iron_block",
+	.texture_top = "cubyz:oak_planks",
 }

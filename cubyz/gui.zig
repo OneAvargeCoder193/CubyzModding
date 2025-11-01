@@ -28,11 +28,12 @@ pub const GuiComponentEnum = enum(u8) {
 
 pub const GuiComponent = union(GuiComponentEnum) {
 	pub const Button = @import("components/Button.zig");
+	pub const CheckBox = @import("components/CheckBox.zig");
 	pub const Label = @import("components/Label.zig");
 	pub const VerticalList = @import("components/VerticalList.zig");
 
 	button: Button,
-	checkBox: Label,
+	checkBox: CheckBox,
 	horizontalList: Label,
 	icon: Label,
 	itemSlot: Label,
