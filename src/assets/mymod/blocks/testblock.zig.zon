@@ -5,7 +5,10 @@
 	.drops = .{
 		.{.items = .{.auto}},
 	},
-	.gui = .testgui,
+	.onInteract = .{
+		.type = .openWindow,
+		.name = "testgui",
+	},
 	.rotation = "cubyz:stairs",
 	.model = "cubyz:cube",
 	.texture = "cubyz:iron_block",
