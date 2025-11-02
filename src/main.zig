@@ -31,5 +31,5 @@ pub export fn registerCommands() void {
 }
 
 pub export fn registerWindows() void {
-	gui.registerWindow(@import("gui/testgui.zig").window, @import("gui/testgui.zig").open, @import("gui/testgui.zig").close, @import("gui/testgui.zig").id);
+	gui.registerWindow(@import("gui/testgui.zig"));
 }

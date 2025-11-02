@@ -29,6 +29,7 @@ pub const GuiComponentEnum = enum(u8) {
 pub const GuiComponent = union(GuiComponentEnum) {
 	pub const Button = @import("components/Button.zig");
 	pub const CheckBox = @import("components/CheckBox.zig");
+	pub const Icon = @import("components/Icon.zig");
 	pub const Label = @import("components/Label.zig");
 	pub const TextInput = @import("components/TextInput.zig");
 	pub const VerticalList = @import("components/VerticalList.zig");
@@ -36,7 +37,7 @@ pub const GuiComponent = union(GuiComponentEnum) {
 	button: Button,
 	checkBox: CheckBox,
 	horizontalList: Label,
-	icon: Label,
+	icon: Icon,
 	itemSlot: Label,
 	label: Label,
 	scrollBar: Label,
@@ -147,29 +148,33 @@ fn registerWindowConfig(func: anytype, comptime window: *WindowConfig, comptime 
 	return configName;
 }
 
+fn wrap(func: fn() void) fn() callconv(.{ .wasm_mvp = .{} }) void {
+	return struct{
+		fn function() callconv(.{ .wasm_mvp = .{} }) void {
+			func();
+		}
+	}.function;
+}
+
 pub fn registerWindow(
-	window: WindowConfig,
-	comptime onOpen: fn() void,
-	comptime onClose: fn() void,
-	comptime name: []const u8,
+	comptime windowType: type,
 ) void {
-	const openName = std.fmt.comptimePrint("openWindow_{s}", .{name});
-	@export(&struct {
-		fn execute() callconv(.{ .wasm_mvp = .{} }) void {
-			return onOpen();
-		}
-	}.execute, .{.name = openName});
-	const closeName = std.fmt.comptimePrint("closeWindow_{s}", .{name});
-	@export(&struct {
-		fn execute() callconv(.{ .wasm_mvp = .{} }) void {
-			onClose();
-		}
-	}.execute, .{.name = closeName});
+	const window = windowType.window;
+	const name = windowType.id;
+	const initName = cubyz.callback.registerCallback(windowType.init, wrap);
+	const deinitName = cubyz.callback.registerCallback(windowType.deinit, wrap);
+	const onOpenName = cubyz.callback.registerCallback(windowType.onOpen, wrap);
+	const onCloseName = cubyz.callback.registerCallback(windowType.onClose, wrap);
 	const relativePosX = window.relativePosition[0].serialize();
 	const relativePosY = window.relativePosition[1].serialize();
 	defer cubyz.allocator.free(relativePosX);
 	defer cubyz.allocator.free(relativePosY);
-	registerWindowImpl(openName.ptr, @intCast(openName.len), closeName.ptr, @intCast(closeName.len), name.ptr, @intCast(name.len),
+	registerWindowImpl(
+		initName.ptr, @intCast(initName.len),
+		deinitName.ptr, @intCast(deinitName.len),
+		onOpenName.ptr, @intCast(onOpenName.len),
+		onCloseName.ptr, @intCast(onCloseName.len),
+		name.ptr, @intCast(name.len),
 		window.contentSize[0], window.contentSize[1],
 		window.scale, window.spacing,
 		relativePosX.ptr, @intCast(relativePosX.len),
@@ -194,9 +199,19 @@ pub fn getRootComponent(id: []const u8) ?GuiComponent {
 	};
 }
 
+pub fn openWindow(id: []const u8) void {
+	openWindowImpl(id.ptr, @intCast(id.len));
+}
+
+pub fn closeWindow(id: []const u8) void {
+	closeWindowImpl(id.ptr, @intCast(id.len));
+}
+
 extern fn registerWindowImpl(
-	openName: [*]const u8, openNameLen: u32,
-	closeName: [*]const u8, closeNameLen: u32,
+	initName: [*]const u8, initNameLen: u32,
+	deinitName: [*]const u8, deinitNameLen: u32,
+	onOpenName: [*]const u8, onOpenNameLen: u32,
+	onCloseName: [*]const u8, onCloseNameLen: u32,
 	name: [*]const u8, nameLen: u32,
 	contentWidth: f32, contentHeight: f32,
 	scale: f32, spacing: f32,
@@ -214,3 +229,6 @@ extern fn guiComponentPosImpl(index: u32, x: *f32, y: *f32) void;
 extern fn guiComponentSizeImpl(index: u32, width: *f32, height: *f32) void;
 
 extern fn guiComponentDeinitImpl(index: u32) void;
+
+extern fn openWindowImpl(idPtr: [*]const u8, idLen: u32) void;
+extern fn closeWindowImpl(idPtr: [*]const u8, idLen: u32) void;
