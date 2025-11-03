@@ -2,6 +2,7 @@ const std = @import("std");
 
 pub const cubyz = @import("cubyz");
 pub const assets = cubyz.assets;
+pub const callback = cubyz.callback;
 pub const user = cubyz.user;
 pub const game = cubyz.game;
 pub const gui = cubyz.gui;
@@ -32,4 +33,8 @@ pub export fn registerCommands() void {
 
 pub export fn registerWindows() void {
 	gui.registerWindow(@import("gui/testgui.zig"));
+}
+
+pub export fn initTouchBlockCallback() void {
+	callback.registerTouchBlockCallback(@import("callbacks/block/touch/launch.zig"));
 }

@@ -9,6 +9,10 @@
 		.type = .openWindow,
 		.name = "testgui",
 	},
+	.onTouch = .{
+		.type = .launch,
+		.strength = 10,
+	},
 	.rotation = "cubyz:stairs",
 	.model = "cubyz:cube",
 	.texture = "cubyz:iron_block",
