@@ -161,24 +161,24 @@ pub fn registerWindow(
 ) void {
 	const window = windowType.window;
 	const name = windowType.id;
-	const initName = cubyz.callback.registerCallback(windowType.init, wrap);
-	const deinitName = cubyz.callback.registerCallback(windowType.deinit, wrap);
-	const onOpenName = cubyz.callback.registerCallback(windowType.onOpen, wrap);
-	const onCloseName = cubyz.callback.registerCallback(windowType.onClose, wrap);
+	const initName = cubyz.callback.registerCallback(wrap(windowType.init));
+	const deinitName = cubyz.callback.registerCallback(wrap(windowType.deinit));
+	const onOpenName = cubyz.callback.registerCallback(wrap(windowType.onOpen));
+	const onCloseName = cubyz.callback.registerCallback(wrap(windowType.onClose));
 	const relativePosX = window.relativePosition[0].serialize();
 	const relativePosY = window.relativePosition[1].serialize();
 	defer cubyz.allocator.free(relativePosX);
 	defer cubyz.allocator.free(relativePosY);
 	registerWindowImpl(
-		initName.ptr, @intCast(initName.len),
-		deinitName.ptr, @intCast(deinitName.len),
-		onOpenName.ptr, @intCast(onOpenName.len),
-		onCloseName.ptr, @intCast(onCloseName.len),
-		name.ptr, @intCast(name.len),
+		initName.ptr, initName.len,
+		deinitName.ptr, deinitName.len,
+		onOpenName.ptr, onOpenName.len,
+		onCloseName.ptr, onCloseName.len,
+		name.ptr, name.len,
 		window.contentSize[0], window.contentSize[1],
 		window.scale, window.spacing,
-		relativePosX.ptr, @intCast(relativePosX.len),
-		relativePosY.ptr, @intCast(relativePosY.len),
+		relativePosX.ptr, relativePosX.len,
+		relativePosY.ptr, relativePosY.len,
 		window.showTitleBar, window.hasBackground,
 		window.hideIfMouseIsGrabbed, window.closeIfMouseIsGrabbed,
 		window.closable, window.isHud,
@@ -186,12 +186,12 @@ pub fn registerWindow(
 }
 
 pub fn setRootComponent(id: []const u8, component: GuiComponent, padding: f32) void {
-	setRootComponentImpl(id.ptr, @intCast(id.len), component.index(), padding);
+	setRootComponentImpl(id.ptr, id.len, component.index(), padding);
 }
 
 pub fn getRootComponent(id: []const u8) ?GuiComponent {
 	var exists: bool = undefined;
-	const index = getRootComponentImpl(id.ptr, @intCast(id.len), &exists);
+	const index = getRootComponentImpl(id.ptr, id.len, &exists);
 	if(!exists) return null;
 	const typ = getComponentTypeImpl(index);
 	return switch(std.meta.stringToEnum(GuiComponentEnum, std.meta.fieldNames(GuiComponent)[typ]).?) {
@@ -200,11 +200,11 @@ pub fn getRootComponent(id: []const u8) ?GuiComponent {
 }
 
 pub fn openWindow(id: []const u8) void {
-	openWindowImpl(id.ptr, @intCast(id.len));
+	openWindowImpl(id.ptr, id.len);
 }
 
 pub fn closeWindow(id: []const u8) void {
-	closeWindowImpl(id.ptr, @intCast(id.len));
+	closeWindowImpl(id.ptr, id.len);
 }
 
 extern fn registerWindowImpl(

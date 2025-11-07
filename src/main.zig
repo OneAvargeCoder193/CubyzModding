@@ -6,6 +6,8 @@ pub const callback = cubyz.callback;
 pub const user = cubyz.user;
 pub const game = cubyz.game;
 pub const gui = cubyz.gui;
+pub const models = cubyz.models;
+pub const rotation = cubyz.rotation;
 pub const utils = cubyz.utils;
 pub const command = cubyz.command;
 pub const vec = cubyz.vec;
@@ -29,6 +31,10 @@ pub export fn registerCommands() void {
 	command.registerCommand(@import("commands/cat.zig").execute, "cat", "Repeats the player", "/cat <text>");
 	command.registerCommand(@import("commands/damage.zig").execute, "damage", "Damages the player", "/damage <amount>");
 	command.registerCommand(@import("commands/up.zig").execute, "up", "Moves the player up and places glass below", "/up <height>");
+}
+
+pub export fn registerRotationModes() void {
+	rotation.registerRotationMode(@import("rotations/custom_dir.zig"));
 }
 
 pub export fn registerWindows() void {

@@ -13,7 +13,7 @@
 		.type = .launch,
 		.strength = 10,
 	},
-	.rotation = "cubyz:stairs",
+	.rotation = "mymod:custom_dir",
 	.model = "cubyz:cube",
 	.texture = "cubyz:iron_block",
 	.texture_top = "cubyz:oak_planks",

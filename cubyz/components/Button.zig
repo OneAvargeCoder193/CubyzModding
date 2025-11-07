@@ -13,16 +13,16 @@ const Button = @This();
 index: u32,
 
 pub fn initText(pos: Vec2f, width: f32, text: []const u8, callback: ?fn() void) Button {
-	const callbackName = cubyz.callback.registerCallback(callback, wrap);
+	const callbackName = cubyz.callback.registerCallback(wrap(callback));
 	return .{
-		.index = initTextButtonImpl(pos[0], pos[1], width, text.ptr, @intCast(text.len), callbackName.ptr, @intCast(callbackName.len)),
+		.index = initTextButtonImpl(pos[0], pos[1], width, text.ptr, text.len, callbackName.ptr, callbackName.len),
 	};
 }
 
 pub fn initIcon(pos: Vec2f, size: Vec2f, iconTexture: Texture, hasShadow: bool, callback: ?fn() void) Button {
-	const callbackName = cubyz.callback.registerCallback(callback, wrap);
+	const callbackName = cubyz.callback.registerCallback(wrap(callback));
 	return .{
-		.index = initIconButtonImpl(pos[0], pos[1], size[0], size[1], iconTexture.id, hasShadow, callbackName.ptr, @intCast(callbackName.len)),
+		.index = initIconButtonImpl(pos[0], pos[1], size[0], size[1], iconTexture.id, hasShadow, callbackName.ptr, callbackName.len),
 	};
 }
 

@@ -15,37 +15,25 @@ const OptionalCallbacks = struct {
 };
 
 pub fn init(pos: Vec2f, maxWidth: f32, maxHeight: f32, text: []const u8, onNewline: fn() void, optional: OptionalCallbacks) TextInput {
-	const callbackName = cubyz.callback.registerCallback(onNewline, struct{
-		fn wrap(func: fn() void) fn(u32) callconv(.{ .wasm_mvp = .{} }) void {
-			return struct{
-				fn function(_: u32) callconv(.{ .wasm_mvp = .{} }) void {
-					return func();
-				}
-			}.function;
+	const callbackName = cubyz.callback.registerCallback(struct{
+		fn wrap(_: u32) callconv(.{ .wasm_mvp = .{} }) void {
+			return onNewline();
 		}
 	}.wrap);
-	const onUpName = cubyz.callback.registerCallback(optional.onUp, struct{
-		fn wrap(func: ?fn() void) fn(u32) callconv(.{ .wasm_mvp = .{} }) void {
-			return struct{
-				fn function(_: u32) callconv(.{ .wasm_mvp = .{} }) void {
-					if(func == null) return;
-					return func.?();
-				}
-			}.function;
+	const onUpName = cubyz.callback.registerCallback(struct{
+		fn wrap(_: u32) callconv(.{ .wasm_mvp = .{} }) void {
+			if(optional.onUp == null) return;
+			return optional.onUp.?();
 		}
 	}.wrap);
-	const onDownName = cubyz.callback.registerCallback(optional.onDown, struct{
-		fn wrap(func: ?fn() void) fn(u32) callconv(.{ .wasm_mvp = .{} }) void {
-			return struct{
-				fn function(_: u32) callconv(.{ .wasm_mvp = .{} }) void {
-					if(func == null) return;
-					return func.?();
-				}
-			}.function;
+	const onDownName = cubyz.callback.registerCallback(struct{
+		fn wrap(_: u32) callconv(.{ .wasm_mvp = .{} }) void {
+			if(optional.onDown == null) return;
+			return optional.onDown.?();
 		}
 	}.wrap);
 	return .{
-		.index = initTextInputImpl(pos[0], pos[1], maxWidth, maxHeight, text.ptr, @intCast(text.len), callbackName.ptr, @intCast(callbackName.len), onUpName.ptr, @intCast(onUpName.len), onDownName.ptr, @intCast(onDownName.len)),
+		.index = initTextInputImpl(pos[0], pos[1], maxWidth, maxHeight, text.ptr, text.len, callbackName.ptr, callbackName.len, onUpName.ptr, onUpName.len, onDownName.ptr, onDownName.len),
 	};
 }
 
@@ -62,7 +50,7 @@ pub fn clear(self: TextInput) void {
 }
 
 pub fn setText(self: TextInput, text: []const u8) void {
-	setTextInputImpl(self.index, text.ptr, @intCast(text.len));
+	setTextInputImpl(self.index, text.ptr, text.len);
 }
 
 extern fn initTextInputImpl(posX: f32, posY: f32, maxWidth: f32, maxHeight: f32, textPtr: [*]const u8, textLen: u32, onNewlinePtr: [*]const u8, onNewlineLen: u32, onUpPtr: [*]const u8, onUpLen: u32, onDownPtr: [*]const u8, onDownLen: u32) u32;

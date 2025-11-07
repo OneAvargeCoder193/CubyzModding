@@ -3,7 +3,7 @@ pub const Texture = struct {
 
 	pub fn initFromFile(path: []const u8) Texture {
 		return .{
-			.id = initTextureFromFileImpl(path.ptr, @intCast(path.len)),
+			.id = initTextureFromFileImpl(path.ptr, path.len),
 		};
 	}
 

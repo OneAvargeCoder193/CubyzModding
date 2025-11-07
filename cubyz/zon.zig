@@ -460,7 +460,7 @@ const Parser = struct { // MARK: Parser
 						continue :whitespaceLoop;
 					}
 				}
-				index.* += @intCast(whitespace.len);
+				index.* += whitespace.len;
 				continue :outerLoop;
 			}
 			if(chars[index.*] == '/' and chars[index.* + 1] == '/') {

@@ -12,7 +12,7 @@ pub const User = packed struct(u32) {
 	pub fn sendMessage(self: User, comptime fmt: []const u8, args: anytype) void {
 		const msg = std.fmt.allocPrint(cubyz.allocator, fmt, args) catch unreachable;
 		defer cubyz.allocator.free(msg);
-		sendMessageImpl(self, msg.ptr, @intCast(msg.len));
+		sendMessageImpl(self, msg.ptr, msg.len);
 	}
 
 	pub fn addHealth(self: User, amount: f32, damageType: game.DamageType) void {

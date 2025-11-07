@@ -10,17 +10,13 @@ const CheckBox = @This();
 index: u32,
 
 pub fn init(pos: Vec2f, width: f32, text: []const u8, initialValue: bool, callback: fn(bool) void) CheckBox {
-	const callbackName = cubyz.callback.registerCallback(callback, struct{
-		fn wrap(func: fn(bool) void) fn(bool) callconv(.{ .wasm_mvp = .{} }) void {
-			return struct{
-				fn function(arg: bool) callconv(.{ .wasm_mvp = .{} }) void {
-					return func(arg);
-				}
-			}.function;
+	const callbackName = cubyz.callback.registerCallback(struct{
+		fn wrap(arg: bool) callconv(.{ .wasm_mvp = .{} }) void {
+			return callback(arg);
 		}
 	}.wrap);
 	return .{
-		.index = initCheckBoxImpl(pos[0], pos[1], width, text.ptr, @intCast(text.len), initialValue, callbackName.ptr, @intCast(callbackName.len)),
+		.index = initCheckBoxImpl(pos[0], pos[1], width, text.ptr, text.len, initialValue, callbackName.ptr, callbackName.len),
 	};
 }
 

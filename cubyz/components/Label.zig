@@ -11,7 +11,7 @@ index: u32,
 
 pub fn init(pos: Vec2f, maxWidth: f32, text: []const u8, alignment: gui.Alignment) Label {
 	return .{
-		.index = initLabelImpl(pos[0], pos[1], maxWidth, text.ptr, @intCast(text.len), @intFromEnum(alignment)),
+		.index = initLabelImpl(pos[0], pos[1], maxWidth, text.ptr, text.len, @intFromEnum(alignment)),
 	};
 }
 
