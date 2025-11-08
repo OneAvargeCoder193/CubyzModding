@@ -21,10 +21,10 @@ pub const Degrees = enum(u2) {
 	@"270" = 3,
 };
 
-pub fn rotationMatrixTransform(quad: *QuadInfo, transformMatrix: Mat4f) void {
-	quad.normal = vec.xyz(Mat4f.mulVec(transformMatrix, vec.combine(quad.normal, 0)));
-	for(&quad.corners) |*corner| {
-		corner.* = vec.xyz(Mat4f.mulVec(transformMatrix, vec.combine(quad.normal - Vec3f{0.5, 0.5, 0.5}, 1))) + Vec3f{0.5, 0.5, 0.5};
+pub fn rotationMatrixTransform(quad: QuadInfo, transformMatrix: Mat4f) void {
+	quad.setNormal(vec.xyz(Mat4f.mulVec(transformMatrix, vec.combine(quad.normal(), 0))));
+	for(0..4) |i| {
+		quad.setCorner(i, vec.xyz(Mat4f.mulVec(transformMatrix, vec.combine(quad.corner(i) - Vec3f{0.5, 0.5, 0.5}, 1))) + Vec3f{0.5, 0.5, 0.5});
 	}
 }
 
