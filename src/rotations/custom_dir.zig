@@ -75,3 +75,7 @@ pub fn generateData(_: Vec3i, _: Vec3f, _: Vec3f, _: Vec3i, neighbor: ?Neighbor,
 	}
 	return false;
 }
+
+pub fn getBlockTags() []const []const u8 {
+	return &.{"sillytag", "customtag"};
+}

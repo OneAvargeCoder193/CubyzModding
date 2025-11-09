@@ -7,9 +7,6 @@ const models = cubyz.models;
 const Model = models.Model;
 const QuadInfo = models.QuadInfo;
 const ZonElement = cubyz.zon.ZonElement;
-const items = cubyz.items;
-const Item = items.Item;
-const ItemStack = items.ItemStack;
 const vec = cubyz.vec;
 const Mat4f = vec.Mat4f;
 const Vec3f = vec.Vec3f;
@@ -28,7 +25,7 @@ pub fn rotationMatrixTransform(quad: QuadInfo, transformMatrix: Mat4f) void {
 	}
 }
 
-pub const CanBeChangedInto = union(enum(u3)) {
+pub const CanBeChangedInto = union(enum(u32)) {
 	no: void,
 	yes: void,
 	yes_costsDurability: u16,
@@ -85,62 +82,38 @@ pub fn registerRotationMode(comptime rotationType: type) void {
 		}
 	}.wrap) else "";
 	const rayIntersection = if(@hasDecl(rotationType, "rayIntersection")) callback.registerCallback(struct{
-		fn wrap(block: Block, itemExists: bool, item: Item, relativePlayerPosX: f32, relativePlayerPosY: f32, relativePlayerPosZ: f32, playerDirX: f32, playerDirY: f32, playerDirZ: f32, distance: *f64, minX: *f32, minY: *f32, minZ: *f32, maxX: *f32, maxY: *f32, maxZ: *f32, face: *Neighbor) callconv(.{ .wasm_mvp = .{} }) void {
-			_ = block;
-			_ = itemExists;
-			_ = item;
-			_ = relativePlayerPosX;
-			_ = relativePlayerPosY;
-			_ = relativePlayerPosZ;
-			_ = playerDirX;
-			_ = playerDirY;
-			_ = playerDirZ;
-			_ = distance;
-			_ = minX;
-			_ = minY;
-			_ = minZ;
-			_ = maxX;
-			_ = maxY;
-			_ = maxZ;
-			_ = face;
-			@compileError("rayIntersection is not implemented yet.");
-			// const res = rotationType.rayIntersection(block, if(itemExists) item else null, .{relativePlayerPosX, relativePlayerPosY, relativePlayerPosZ}, .{playerDirX}, .{playerDirY}, .{playerDirZ});
-			// distance.* = res.distance;
-			// minX.* = res.min[0];
-			// minY.* = res.min[1];
-			// minZ.* = res.min[2];
-			// maxX.* = res.max[0];
-			// maxY.* = res.max[1];
-			// maxZ.* = res.max[2];
-			// face.* = res.face;
+		fn wrap(block: Block, relativePlayerPosX: f32, relativePlayerPosY: f32, relativePlayerPosZ: f32, playerDirX: f32, playerDirY: f32, playerDirZ: f32, distance: *f64, minX: *f32, minY: *f32, minZ: *f32, maxX: *f32, maxY: *f32, maxZ: *f32, face: *Neighbor) callconv(.{ .wasm_mvp = .{} }) void {
+			const res = rotationType.rayIntersection(block, .{relativePlayerPosX, relativePlayerPosY, relativePlayerPosZ}, .{playerDirX}, .{playerDirY}, .{playerDirZ});
+			distance.* = res.distance;
+			minX.* = res.min[0];
+			minY.* = res.min[1];
+			minZ.* = res.min[2];
+			maxX.* = res.max[0];
+			maxY.* = res.max[1];
+			maxZ.* = res.max[2];
+			face.* = res.face;
 		}
 	}.wrap) else "";
 	const onBlockBreaking = if(@hasDecl(rotationType, "onBlockBreaking")) callback.registerCallback(struct{
-		fn wrap(itemExists: bool, item: Item, relativePlayerPosX: f32, relativePlayerPosY: f32, relativePlayerPosZ: f32, playerDirX: f32, playerDirY: f32, playerDirZ: f32, block: *Block) callconv(.{ .wasm_mvp = .{} }) bool {
-			_ = itemExists;
-			_ = item;
-			_ = relativePlayerPosX;
-			_ = relativePlayerPosY;
-			_ = relativePlayerPosZ;
-			_ = playerDirX;
-			_ = playerDirY;
-			_ = playerDirZ;
-			_ = block;
-			@compileError("onBlockBreaking is not implemented yet.");
+		fn wrap(relativePlayerPosX: f32, relativePlayerPosY: f32, relativePlayerPosZ: f32, playerDirX: f32, playerDirY: f32, playerDirZ: f32, block: *Block) callconv(.{ .wasm_mvp = .{} }) bool {
+			rotationType.onBlockBreaking(.{relativePlayerPosX, relativePlayerPosY, relativePlayerPosZ}, .{playerDirX, playerDirY, playerDirZ}, block);
 		}
 	}.wrap) else "";
 	const canBeChangedInto = if(@hasDecl(rotationType, "canBeChangedInto")) callback.registerCallback(struct{
-		fn wrap(oldBlock: Block, newBlock: Block, item: ItemStack, shouldDropSourceBlockOnSuccess: *bool) callconv(.{ .wasm_mvp = .{} }) extern struct{typ: u32, val: u16} {
-			_ = oldBlock;
-			_ = newBlock;
-			_ = item;
-			_ = shouldDropSourceBlockOnSuccess;
-			@compileError("canBeChangedInto is not implemented yet.");
+		fn wrap(oldBlock: Block, newBlock: Block, shouldDropSourceBlockOnSuccess: *bool, val: *u16) callconv(.{ .wasm_mvp = .{} }) u32 {
+			const res = rotationType.canBeChangedInto(oldBlock, newBlock, shouldDropSourceBlockOnSuccess);
+			switch(res) {
+				.no, .yes => {},
+				else => |value| {
+					val.* = value;
+				}
+			}
+			return @intFromEnum(res);
 		}
 	}.wrap) else "";
 	const getBlockTags = if(@hasDecl(rotationType, "getBlockTags")) callback.registerCallback(struct{
-		fn wrap() callconv(.{ .wasm_mvp = .{} }) extern struct{ptr: [*]const struct{ptr: [*]const u8, len: u32}, len: u32} {
-			@compileError("getBlockTags is not implemented yet.");
+		fn wrap() callconv(.{ .wasm_mvp = .{} }) void {
+			@panic("getBlockTags is not implemented");
 		}
 	}.wrap) else "";
 	registerRotationModeImpl(
