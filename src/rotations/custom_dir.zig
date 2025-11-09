@@ -37,16 +37,17 @@ pub fn createBlockModel(_: Block, _: *u16, zon: ZonElement) Model {
 	const baseModel = Model.getModelFromId(modelId);
 	// Rotate the model:
 	const modelIndex = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.identity()});
-	_ = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.rotationY(std.math.pi)});
-	_ = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.rotationZ(-std.math.pi/2.0).mul(Mat4f.rotationX(-std.math.pi/2.0))});
-	_ = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.rotationZ(std.math.pi/2.0).mul(Mat4f.rotationX(-std.math.pi/2.0))});
-	_ = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.rotationX(-std.math.pi/2.0)});
-	_ = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.rotationZ(std.math.pi).mul(Mat4f.rotationX(-std.math.pi/2.0))});
+	_ = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.identity()});//, .{Mat4f.rotationY(std.math.pi)});
+	_ = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.identity()});//, .{Mat4f.rotationZ(-std.math.pi/2.0).mul(Mat4f.rotationX(-std.math.pi/2.0))});
+	_ = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.identity()});//, .{Mat4f.rotationZ(std.math.pi/2.0).mul(Mat4f.rotationX(-std.math.pi/2.0))});
+	_ = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.identity()});//, .{Mat4f.rotationX(-std.math.pi/2.0)});
+	_ = baseModel.transformModel(rotation.rotationMatrixTransform, .{Mat4f.identity()});//, .{Mat4f.rotationZ(std.math.pi).mul(Mat4f.rotationX(-std.math.pi/2.0))});
 	rotatedModels.put(modelId, modelIndex) catch unreachable;
 	return modelIndex;
 }
 
 pub fn model(block: Block) Model {
+	// cubyz.chat.showMessage("{any}\n", .{block});
 	return block.modelIndexStart().offset(@min(block.data, 5));
 }
 
